@@ -1,0 +1,89 @@
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f4f4f9;
+}
+#app {
+  max-width: 900px;
+  margin: 2rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 1rem;
+  margin-bottom: 2rem;
+}
+button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+}
+button:hover {
+  background: #0056b3;
+}
+.field {
+  margin-bottom: 1rem;
+}
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: bold;
+}
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+textarea {
+  height: 100px;
+  font-family: monospace;
+}
+.mock-item {
+  border: 1px solid #eee;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.mock-info h3 {
+  margin: 0 0 0.5rem 0;
+}
+.mock-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #666;
+}
+.actions button {
+  margin-left: 0.5rem;
+}
+.delete-btn {
+  background: #dc3545;
+}
+.delete-btn:hover {
+  background: #a71d2a;
+}
+.reset-btn {
+  background: #6c757d;
+}
+.reset-btn:hover {
+  background: #5a6268;
+}
+.actions {
+  margin-top: 1rem;
+}
