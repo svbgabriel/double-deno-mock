@@ -334,3 +334,125 @@ Deno.test('Script Responder - concurrent requests ID correlation', async () => {
     assertEquals(res?.body, `item-${index + 1}`)
   })
 })
+
+Deno.test('Script Responder - path parameters access', async () => {
+  const engine = new MatchingEngine(new MockStoreStub())
+
+  const mockUser: Mock = {
+    id: 'script-user-id',
+    name: 'User By ID',
+    method: 'GET',
+    path: '/users/:id',
+    type: 'script',
+    priority: 1,
+    script: `
+      return {
+        status: 200,
+        body: JSON.stringify({ userId: context.pathParams.id })
+      };
+    `,
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+  }
+
+  const mockMulti: Mock = {
+    id: 'script-multi-param',
+    name: 'Multi Param',
+    method: 'GET',
+    path: '/orgs/:org/users/:id',
+    type: 'script',
+    priority: 1,
+    script: `
+      return {
+        status: 200,
+        body: JSON.stringify({ org: context.pathParams.org, user: context.pathParams.id })
+      };
+    `,
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+  }
+
+  const mockNoParam: Mock = {
+    id: 'script-no-param',
+    name: 'No Param',
+    method: 'GET',
+    path: '/no-params',
+    type: 'script',
+    priority: 1,
+    script: `
+      return {
+        status: 200,
+        body: JSON.stringify(context.pathParams)
+      };
+    `,
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+  }
+
+  engine.setMocks([mockUser, mockMulti, mockNoParam])
+
+  // Single param
+  const resUser = await engine.handleRequest(new Request('http://localhost/users/42'))
+  assertEquals(resUser?.status, 200)
+  assertEquals(JSON.parse(resUser?.body || '{}'), { userId: '42' })
+
+  // Multi-segment param
+  const resMulti = await engine.handleRequest(new Request('http://localhost/orgs/acme/users/99'))
+  assertEquals(resMulti?.status, 200)
+  assertEquals(JSON.parse(resMulti?.body || '{}'), { org: 'acme', user: '99' })
+
+  // No params
+  const resNoParam = await engine.handleRequest(new Request('http://localhost/no-params'))
+  assertEquals(resNoParam?.status, 200)
+  assertEquals(JSON.parse(resNoParam?.body || 'null'), {})
+})
+
+Deno.test('Script Responder - full request context access', async () => {
+  const engine = new MatchingEngine(new MockStoreStub())
+
+  const mock: Mock = {
+    id: 'script-full-context',
+    name: 'Full Context',
+    method: 'POST',
+    path: '/api/v1/:section/items',
+    type: 'script',
+    priority: 1,
+    script: `
+      return {
+        status: 201,
+        body: JSON.stringify({
+          method: context.method,
+          path: context.path,
+          section: context.pathParams.section,
+          page: context.query.page,
+          apiKey: context.headers['x-api-key'],
+          itemTitle: context.body.title
+        })
+      };
+    `,
+    createdAt: '2024-01-01',
+    updatedAt: '2024-01-01',
+  }
+
+  engine.setMocks([mock])
+
+  const req = new Request('http://localhost/api/v1/inventory/items?page=2', {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json',
+      'x-api-key': 'secret-123',
+    },
+    body: JSON.stringify({ title: 'Widget A' }),
+  })
+
+  const res = await engine.handleRequest(req)
+  assertEquals(res?.status, 201)
+  assertEquals(JSON.parse(res?.body || '{}'), {
+    method: 'POST',
+    path: '/api/v1/inventory/items',
+    section: 'inventory',
+    page: '2',
+    apiKey: 'secret-123',
+    itemTitle: 'Widget A',
+  })
+})

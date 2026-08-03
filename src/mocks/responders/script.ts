@@ -6,6 +6,7 @@ export async function handleScript(
   mock: Mock,
   requestMethod: string,
   requestPath: string,
+  pathParams: Record<string, string>,
   headers: Headers,
   query: Record<string, string>,
   body: unknown,
@@ -17,6 +18,7 @@ export async function handleScript(
   const context: ScriptContext = {
     method: requestMethod,
     path: requestPath,
+    pathParams,
     headers: Object.fromEntries(headers.entries()),
     query,
     body,

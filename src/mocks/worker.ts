@@ -63,8 +63,8 @@ self.onmessage = async (e) => {
 
   try {
     // We wrap the user script in an async block.
-    // The script can use 'context' and should return an object with status, headers, body.
-    // Example: return { status: 200, body: JSON.stringify({ hello: context.query.name }) };
+    // The script can use 'context' (method, path, pathParams, query, headers, body) and should return an object with status, headers, body.
+    // Example: return { status: 200, body: JSON.stringify({ id: context.pathParams.id, name: context.query.name }) };
     const userFn = new Function(
       'context',
       `

@@ -95,7 +95,8 @@
 
             <div id="config-script" class="config-fields" style="display: none;">
               <h3>Script (JS/TS)</h3>
-              <textarea id="script-code" placeholder="return { status: 200, body: 'hello' };"></textarea>
+              <textarea id="script-code" placeholder="// Available context: method, path, pathParams, query, headers, body
+return { status: 200, body: JSON.stringify({ id: context.pathParams.id }) };"></textarea>
             </div>
 
             <div class="actions">

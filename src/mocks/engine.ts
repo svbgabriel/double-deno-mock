@@ -59,6 +59,22 @@ export class MatchingEngine {
     const mock = sorted[0]
     if (!mock) return null
 
+    const pathParams: Record<string, string> = {}
+    try {
+      const pattern = new URLPattern({ pathname: mock.path })
+      const match = pattern.exec({ pathname: path })
+      if (match?.pathname.groups) {
+        for (const [key, value] of Object.entries(match.pathname.groups)) {
+          if (value !== undefined) {
+            pathParams[key] = value
+          }
+        }
+      }
+    }
+    catch {
+      // Ignore errors if mock.path is not a valid pattern
+    }
+
     switch (mock.type) {
       case 'static':
         return handleStatic(mock)
@@ -67,7 +83,7 @@ export class MatchingEngine {
       case 'sequence':
         return handleSequence(mock)
       case 'script':
-        return await handleScript(mock, method, path, headers, query, body)
+        return await handleScript(mock, method, path, pathParams, headers, query, body)
       default:
         return { status: 500, body: `Unknown mock type: ${mock.type}` }
     }

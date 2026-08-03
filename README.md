@@ -56,11 +56,31 @@ multiple mocks match, the one with the highest **Priority** is chosen.
 
 ### Script Mock Example
 
+User scripts run in a sandboxed Worker and receive a global `context` object representing the incoming request:
+
+- `context.method`: Request HTTP method (e.g. `'GET'`, `'POST'`).
+- `context.path`: Request path (e.g. `'/users/42'`).
+- `context.pathParams`: Object with named path parameters from `URLPattern` route matching (e.g. `{ id: '42' }` for `/users/:id`).
+- `context.query`: Object with URL query parameters (e.g. `context.query.filter`).
+- `context.headers`: Object with request headers in lowercase (e.g. `context.headers['content-type']`).
+- `context.body`: Parsed JSON request body (if `Content-Type` is `application/json`), or `null`.
+
+#### Example
+
+For a route defined with path `/users/:id`:
+
 ```javascript
-const name = context.query.name || 'World'
+const userId = context.pathParams.id
+const format = context.query.format || 'json'
+
 return {
   status: 200,
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ message: `Hello ${name}!` }),
+  body: JSON.stringify({
+    id: userId,
+    format: format,
+    method: context.method,
+    clientHeader: context.headers['x-client-id']
+  })
 }
 ```

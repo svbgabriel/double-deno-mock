@@ -3,6 +3,7 @@ import { MockResponse } from './types.ts'
 export interface ScriptContext {
   method: string
   path: string
+  pathParams: Record<string, string>
   headers: Record<string, string>
   query: Record<string, string>
   body: unknown
