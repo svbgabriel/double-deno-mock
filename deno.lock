@@ -1,12 +1,11 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@db/postgres@*": "0.19.5",
     "jsr:@db/postgres@~0.19.5": "0.19.5",
     "jsr:@db/sqlite@0.13": "0.13.0",
     "jsr:@denosaurs/plug@1": "1.1.0",
     "jsr:@hono/hono@^4.5.4": "4.12.32",
-    "jsr:@std/assert@^1.0.1": "1.0.19",
+    "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/bytes@^1.0.5": "1.0.6",
     "jsr:@std/crypto@^1.0.4": "1.1.0",
     "jsr:@std/encoding@1": "1.0.11",
@@ -94,7 +93,7 @@
       "jsr:@db/postgres@~0.19.5",
       "jsr:@db/sqlite@0.13",
       "jsr:@hono/hono@^4.5.4",
-      "jsr:@std/assert@^1.0.1"
+      "jsr:@std/assert@^1.0.19"
     ]
   }
 }
