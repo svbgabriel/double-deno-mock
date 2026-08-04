@@ -65,11 +65,11 @@ Deno.test('Content-Type logic', async (t) => {
         method: 'GET',
         path: '/override-ct',
         type: 'static',
-        response: { 
-          status: 200, 
-          body: '<html></html>', 
+        response: {
+          status: 200,
+          body: '<html></html>',
           contentType: 'text/plain',
-          headers: { 'Content-Type': 'text/html' }
+          headers: { 'Content-Type': 'text/html' },
         },
       }),
     })
@@ -116,8 +116,8 @@ Deno.test('Content-Type logic', async (t) => {
             key: 'x-never',
             op: 'equals',
             value: 'ever',
-            response: { status: 200, body: 'never' }
-          }
+            response: { status: 200, body: 'never' },
+          },
         ],
         elseResponse: { status: 404, contentType: 'text/html', body: '<h1>Not Found</h1>' },
       }),
@@ -144,15 +144,15 @@ Deno.test('Content-Type logic', async (t) => {
             key: 'x-type',
             op: 'equals',
             value: 'json',
-            response: { status: 200, contentType: 'application/json', body: '{"ok":true}' }
-          }
+            response: { status: 200, contentType: 'application/json', body: '{"ok":true}' },
+          },
         ],
-        elseResponse: { status: 200, contentType: 'text/plain', body: 'default' }
+        elseResponse: { status: 200, contentType: 'text/plain', body: 'default' },
       }),
     })
 
     const res = await app.request('/cond-match', {
-      headers: { 'x-type': 'json' }
+      headers: { 'x-type': 'json' },
     })
     assertEquals(res.headers.get('Content-Type'), 'application/json')
   })

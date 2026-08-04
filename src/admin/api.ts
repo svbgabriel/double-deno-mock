@@ -1,7 +1,7 @@
 import { Hono } from '@hono'
 import { store } from '../store/index.ts'
 import { engine } from '../server.ts'
-import {Mock, mockTypeArray} from '../mocks/types.ts'
+import { Mock, mockTypeArray } from '../mocks/types.ts'
 import { resetSequence } from '../mocks/responders/sequence.ts'
 
 const api = new Hono()
