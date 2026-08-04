@@ -6,15 +6,30 @@ import { handleScript } from './responders/script.ts'
 
 export class MatchingEngine {
   private mocks: Mock[] = []
+  private compiledPatterns: Map<string, URLPattern | null> = new Map()
 
   constructor(private store: MockStore) {}
 
   async loadMocks() {
     this.mocks = await this.store.list()
+    this.compilePatterns()
   }
 
   setMocks(mocks: Mock[]) {
     this.mocks = [...mocks]
+    this.compilePatterns()
+  }
+
+  private compilePatterns() {
+    this.compiledPatterns.clear()
+    for (const mock of this.mocks) {
+      try {
+        this.compiledPatterns.set(mock.id, new URLPattern({ pathname: mock.path }))
+      }
+      catch {
+        this.compiledPatterns.set(mock.id, null)
+      }
+    }
   }
 
   async handleRequest(req: Request): Promise<MockResponse | null> {
@@ -24,30 +39,15 @@ export class MatchingEngine {
     const headers = req.headers
     const query = Object.fromEntries(url.searchParams.entries())
 
-    let body: unknown = null
-    const contentType = headers.get('content-type')
-    if (contentType?.includes('application/json')) {
-      try {
-        // Clone request to avoid consuming body if needed elsewhere
-        body = await req.clone().json()
-      }
-      catch {
-        // Ignore body parsing errors
-      }
-    }
-
     const candidates = this.mocks.filter((mock) => {
       const methodMatch = mock.method === '*' || mock.method.toUpperCase() === method.toUpperCase()
+      if (!methodMatch) return false
 
-      // Handle simple path or pattern
-      try {
-        const pattern = new URLPattern({ pathname: mock.path })
-        return methodMatch && pattern.test({ pathname: path })
+      const pattern = this.compiledPatterns.get(mock.id)
+      if (pattern) {
+        return pattern.test({ pathname: path })
       }
-      catch {
-        // Fallback for non-pattern paths
-        return methodMatch && mock.path === path
-      }
+      return mock.path === path
     })
 
     // Sort by priority (higher first) and then createdAt
@@ -60,8 +60,8 @@ export class MatchingEngine {
     if (!mock) return null
 
     const pathParams: Record<string, string> = {}
-    try {
-      const pattern = new URLPattern({ pathname: mock.path })
+    const pattern = this.compiledPatterns.get(mock.id)
+    if (pattern) {
       const match = pattern.exec({ pathname: path })
       if (match?.pathname.groups) {
         for (const [key, value] of Object.entries(match.pathname.groups)) {
@@ -71,8 +71,18 @@ export class MatchingEngine {
         }
       }
     }
-    catch {
-      // Ignore errors if mock.path is not a valid pattern
+
+    let body: unknown = null
+    if (mock.type === 'conditional' || mock.type === 'script') {
+      const contentType = headers.get('content-type')
+      if (contentType?.includes('application/json')) {
+        try {
+          body = await req.json()
+        }
+        catch {
+          // Ignore body parsing errors
+        }
+      }
     }
 
     switch (mock.type) {

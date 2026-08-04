@@ -37,12 +37,14 @@ export function validateAndNormalizeResponse(raw: unknown): MockResponse {
   if (r.body !== undefined && r.body !== null) {
     if (typeof r.body === 'string') {
       body = r.body
-    } else if (typeof r.body === 'object') {
+    }
+    else if (typeof r.body === 'object') {
       body = JSON.stringify(r.body)
       if (!contentType) {
         contentType = 'application/json'
       }
-    } else {
+    }
+    else {
       body = String(r.body)
     }
   }
@@ -57,22 +59,27 @@ export function validateAndNormalizeResponse(raw: unknown): MockResponse {
   return result
 }
 
+// Cache for compiled user scripts to improve performance
+// deno-lint-ignore ban-types
+const scriptCache = new Map<string, Function>()
+
 // Worker for running user scripts in isolation
 self.onmessage = async (e) => {
   const { id, script, context } = e.data
 
   try {
-    // We wrap the user script in an async block.
-    // The script can use 'context' (method, path, pathParams, query, headers, body) and should return an object with status, headers, body.
-    // Example: return { status: 200, body: JSON.stringify({ id: context.pathParams.id, name: context.query.name }) };
-    const userFn = new Function(
-      'context',
-      `
-      return (async () => {
-        ${script}
-      })();
-    `,
-    )
+    let userFn = scriptCache.get(script)
+    if (!userFn) {
+      userFn = new Function(
+        'context',
+        `
+        return (async () => {
+          ${script}
+        })();
+      `,
+      )
+      scriptCache.set(script, userFn)
+    }
 
     const rawResponse = await userFn(context)
     const response = validateAndNormalizeResponse(rawResponse)
@@ -84,7 +91,8 @@ self.onmessage = async (e) => {
     if (err instanceof Error) {
       const prefix = err.name && err.name !== 'Error' ? `${err.name}: ` : ''
       errorMsg = `${prefix}${err.message}`
-    } else {
+    }
+    else {
       errorMsg = String(err)
     }
     self.postMessage({ id, type: 'error', error: errorMsg })
