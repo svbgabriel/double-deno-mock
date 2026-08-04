@@ -60,7 +60,8 @@ api.post('/mocks', async (c) => {
     return c.json(created, 201)
   }
   catch (err) {
-    return c.json({ error: err instanceof Error ? err.message : String(err) }, 400)
+    console.error('[Admin API] Error creating mock:', err)
+    return c.json({ error: 'Internal Server Error' }, 500)
   }
 })
 
@@ -72,23 +73,35 @@ api.put('/mocks/:id', async (c) => {
     const existing = await store.get(id)
     if (!existing) return c.json({ error: 'Not Found' }, 404)
 
+    const error = validateMock({ ...existing, ...body })
+    if (error) return c.json({ error }, 400)
+
     const updated = await store.update(id, body)
+    resetSequence(id)
     await engine.loadMocks()
     return c.json(updated)
   }
   catch (err) {
-    return c.json({ error: err instanceof Error ? err.message : String(err) }, 400)
+    console.error('[Admin API] Error updating mock:', err)
+    return c.json({ error: 'Internal Server Error' }, 500)
   }
 })
 
 api.delete('/mocks/:id', async (c) => {
-  const id = c.req.param('id')
-  const existing = await store.get(id)
-  if (!existing) return c.json({ error: 'Not Found' }, 404)
+  try {
+    const id = c.req.param('id')
+    const existing = await store.get(id)
+    if (!existing) return c.json({ error: 'Not Found' }, 404)
 
-  await store.delete(id)
-  await engine.loadMocks()
-  return c.json({ success: true })
+    await store.delete(id)
+    resetSequence(id)
+    await engine.loadMocks()
+    return c.json({ success: true })
+  }
+  catch (err) {
+    console.error('[Admin API] Error deleting mock:', err)
+    return c.json({ error: 'Internal Server Error' }, 500)
+  }
 })
 
 api.post('/mocks/:id/reset', async (c) => {
