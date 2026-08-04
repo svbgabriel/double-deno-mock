@@ -54,7 +54,7 @@ export class SqliteMockStore implements MockStore {
     const existing = await this.get(id)
     if (!existing) throw new Error(`Mock with id ${id} not found`)
 
-    const updated = { ...existing, ...m, updatedAt: new Date().toISOString() }
+    const updated = { ...existing, ...m, id, updatedAt: new Date().toISOString() }
     const config = JSON.stringify({
       response: updated.response,
       conditions: updated.conditions,
