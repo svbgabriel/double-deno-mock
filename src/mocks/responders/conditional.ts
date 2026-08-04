@@ -19,10 +19,11 @@ export async function handleConditional(
     }
     else if (condition.source === 'body') {
       // Basic JSON body field access. For deeper fields, a more complex logic would be needed.
-      if (typeof body === 'object' && body !== null && condition.key in body) {
-        valueToCompare = (body as Record<string, string>)?.toString()
-      } else {
-        valueToCompare = undefined
+      if (typeof body === 'object' && body !== null) {
+        const val = (body as Record<string, unknown>)[condition.key]
+        if (val !== undefined) {
+          valueToCompare = String(val)
+        }
       }
     }
 
