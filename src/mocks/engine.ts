@@ -89,7 +89,7 @@ export class MatchingEngine {
       case 'static':
         return handleStatic(mock)
       case 'conditional':
-        return await handleConditional(mock, headers, query, body)
+        return handleConditional(mock, headers, query, body)
       case 'sequence':
         return handleSequence(mock)
       case 'script':

@@ -1,6 +1,18 @@
 import { Client } from '@db/postgres'
 import { POSTGRES_URL } from '../config.ts'
-import { Mock, MockStore } from '../mocks/types.ts'
+import { Mock, MockStore, MockType } from '../mocks/types.ts'
+
+interface MockRow {
+  id: string
+  name: string
+  method: string
+  path: string
+  type: MockType
+  priority: number
+  config: string | Record<string, unknown>
+  createdAt: string
+  updatedAt: string
+}
 
 export class PostgresMockStore implements MockStore {
   private client!: Client
@@ -24,14 +36,14 @@ export class PostgresMockStore implements MockStore {
   }
 
   async list(): Promise<Mock[]> {
-    const result = await this.client.queryObject<any>(
+    const result = await this.client.queryObject<MockRow>(
       'SELECT * FROM mocks ORDER BY priority DESC, createdAt DESC',
     )
     return result.rows.map((row) => this.rowToMock(row))
   }
 
   async get(id: string): Promise<Mock | null> {
-    const result = await this.client.queryObject<any>(
+    const result = await this.client.queryObject<MockRow>(
       'SELECT * FROM mocks WHERE id = $1',
       [id],
     )
@@ -39,29 +51,29 @@ export class PostgresMockStore implements MockStore {
     return this.rowToMock(result.rows[0])
   }
 
-  async create(m: Mock): Promise<Mock> {
+  async create(mock: Mock): Promise<Mock> {
     const config = {
-      response: m.response,
-      conditions: m.conditions,
-      elseResponse: m.elseResponse,
-      sequence: m.sequence,
-      sequenceMode: m.sequenceMode,
-      script: m.script,
+      response: mock.response,
+      conditions: mock.conditions,
+      elseResponse: mock.elseResponse,
+      sequence: mock.sequence,
+      sequenceMode: mock.sequenceMode,
+      script: mock.script,
     }
 
     await this.client.queryArray(
       `INSERT INTO mocks (id, name, method, path, type, priority, config, createdAt, updatedAt)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [m.id, m.name, m.method, m.path, m.type, m.priority, JSON.stringify(config), m.createdAt, m.updatedAt],
+      [mock.id, mock.name, mock.method, mock.path, mock.type, mock.priority, JSON.stringify(config), mock.createdAt, mock.updatedAt],
     )
-    return m
+    return mock
   }
 
-  async update(id: string, m: Partial<Mock>): Promise<Mock> {
+  async update(id: string, mock: Partial<Mock>): Promise<Mock> {
     const existing = await this.get(id)
     if (!existing) throw new Error(`Mock with id ${id} not found`)
 
-    const updated = { ...existing, ...m, id, updatedAt: new Date().toISOString() }
+    const updated = { ...existing, ...mock, id, updatedAt: new Date().toISOString() }
     const config = {
       response: updated.response,
       conditions: updated.conditions,
@@ -92,7 +104,7 @@ export class PostgresMockStore implements MockStore {
     await this.client.queryArray('DELETE FROM mocks WHERE id = $1', [id])
   }
 
-  private rowToMock(row: any): Mock {
+  private rowToMock(row: MockRow): Mock {
     const { id, name, method, path, type, priority, config, createdAt, updatedAt } = row
     return {
       id,

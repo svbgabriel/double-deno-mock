@@ -1,11 +1,23 @@
 import { Database } from '@db/sqlite'
 import { SQLITE_PATH } from '../config.ts'
-import { Mock, MockStore } from '../mocks/types.ts'
+import { Mock, MockStore, MockType } from '../mocks/types.ts'
+
+type MockRow = [
+  id: string,
+  name: string,
+  method: string,
+  path: string,
+  type: MockType,
+  priority: number,
+  config: string,
+  createdAt: string,
+  updatedAt: string,
+]
 
 export class SqliteMockStore implements MockStore {
   private db!: Database
 
-  async init(): Promise<void> {
+  init(): Promise<void> {
     this.db = new Database(SQLITE_PATH)
     this.db.exec(`
       CREATE TABLE IF NOT EXISTS mocks (
@@ -20,20 +32,21 @@ export class SqliteMockStore implements MockStore {
         updatedAt TEXT NOT NULL
       )
     `)
+    return Promise.resolve()
   }
 
-  async list(): Promise<Mock[]> {
-    const rows = this.db.prepare('SELECT * FROM mocks ORDER BY priority DESC, createdAt DESC').values()
-    return rows.map((row: any[]) => this.rowToMock(row))
+  list(): Promise<Mock[]> {
+    const rows = this.db.prepare('SELECT * FROM mocks ORDER BY priority DESC, createdAt DESC').values<MockRow>()
+    return Promise.resolve(rows.map((row) => this.rowToMock(row)))
   }
 
-  async get(id: string): Promise<Mock | null> {
-    const rows = this.db.prepare('SELECT * FROM mocks WHERE id = ?').values([id])
-    if (rows.length === 0) return null
-    return this.rowToMock(rows[0])
+  get(id: string): Promise<Mock | null> {
+    const rows = this.db.prepare('SELECT * FROM mocks WHERE id = ?').values<MockRow>([id])
+    if (rows.length === 0) return Promise.resolve(null)
+    return Promise.resolve(this.rowToMock(rows[0]))
   }
 
-  async create(m: Mock): Promise<Mock> {
+  create(m: Mock): Promise<Mock> {
     const config = JSON.stringify({
       response: m.response,
       conditions: m.conditions,
@@ -47,7 +60,7 @@ export class SqliteMockStore implements MockStore {
       `INSERT INTO mocks (id, name, method, path, type, priority, config, createdAt, updatedAt)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).run(m.id, m.name, m.method, m.path, m.type, m.priority, config, m.createdAt, m.updatedAt)
-    return m
+    return Promise.resolve(m)
   }
 
   async update(id: string, m: Partial<Mock>): Promise<Mock> {
@@ -71,11 +84,12 @@ export class SqliteMockStore implements MockStore {
     return updated
   }
 
-  async delete(id: string): Promise<void> {
+  delete(id: string): Promise<void> {
     this.db.prepare('DELETE FROM mocks WHERE id = ?').run(id)
+    return Promise.resolve()
   }
 
-  private rowToMock(row: any[]): Mock {
+  private rowToMock(row: MockRow): Mock {
     const [id, name, method, path, type, priority, configStr, createdAt, updatedAt] = row
     const config = JSON.parse(configStr)
     return {

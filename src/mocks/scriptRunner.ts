@@ -9,7 +9,7 @@ export interface ScriptContext {
   body: unknown
 }
 
-export async function runScript(script: string, context: ScriptContext, timeoutMs = 2000): Promise<MockResponse> {
+export function runScript(script: string, context: ScriptContext, timeoutMs = 2000): Promise<MockResponse> {
   const workerUrl = new URL('./worker.ts', import.meta.url).href
   let worker: Worker | null = null
 

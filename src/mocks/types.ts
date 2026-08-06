@@ -39,7 +39,7 @@ export interface MockStore {
   init(): Promise<void>
   list(): Promise<Mock[]>
   get(id: string): Promise<Mock | null>
-  create(m: Mock): Promise<Mock>
-  update(id: string, m: Partial<Mock>): Promise<Mock>
+  create(mock: Mock): Promise<Mock>
+  update(id: string, mock: Partial<Mock>): Promise<Mock>
   delete(id: string): Promise<void>
 }

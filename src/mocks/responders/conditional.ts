@@ -1,11 +1,11 @@
 import { Mock, MockResponse } from '../types.ts'
 
-export async function handleConditional(
+export function handleConditional(
   mock: Mock,
   headers: Headers,
   query: Record<string, string>,
   body: unknown,
-): Promise<MockResponse> {
+): MockResponse {
   const conditions = mock.conditions ?? []
 
   for (const condition of conditions) {
