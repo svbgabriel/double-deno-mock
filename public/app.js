@@ -7,9 +7,99 @@ const mockListSection = document.getElementById('mock-list-section')
 const newMockBtn = document.getElementById('new-mock-btn')
 const cancelBtn = document.getElementById('cancel-btn')
 const mockTypeSelect = document.getElementById('mock-type')
+const conditionsList = document.getElementById('conditions-list')
+const addConditionBtn = document.getElementById('add-condition-btn')
 
 // State
 let mocks = []
+
+function addConditionRow(condition = null) {
+  const row = document.createElement('div')
+  row.className = 'condition-row'
+
+  const source = condition?.source || 'header'
+  const key = condition?.key || ''
+  const op = condition?.op || 'equals'
+  const value = condition?.value || ''
+  const status = condition?.response?.status || 200
+  const contentType = condition?.response?.contentType || ''
+  const body = condition?.response?.body || ''
+
+  row.innerHTML = `
+    <div class="condition-header">
+      <div class="field-group">
+        <select class="cond-source">
+          <option value="header" ${source === 'header' ? 'selected' : ''}>Header</option>
+          <option value="query" ${source === 'query' ? 'selected' : ''}>Query</option>
+          <option value="body" ${source === 'body' ? 'selected' : ''}>Body</option>
+        </select>
+        <input type="text" class="cond-key" placeholder="Key" value="${key}">
+        <select class="cond-op">
+          <option value="equals" ${op === 'equals' ? 'selected' : ''}>Equals</option>
+          <option value="notEquals" ${op === 'notEquals' ? 'selected' : ''}>Not Equals</option>
+          <option value="exists" ${op === 'exists' ? 'selected' : ''}>Exists</option>
+          <option value="notExists" ${op === 'notExists' ? 'selected' : ''}>Not Exists</option>
+        </select>
+        <input type="text" class="cond-value" placeholder="Value" value="${value}" style="display: ${op === 'exists' || op === 'notExists' ? 'none' : 'inline-block'}">
+      </div>
+      <button type="button" class="delete-btn remove-cond-btn">Remove</button>
+    </div>
+    <div class="condition-response">
+      <div class="field-group">
+        <label>Response Status</label>
+        <input type="number" class="cond-status" placeholder="Status" value="${status}">
+        <label>Content-Type</label>
+        <input type="text" class="cond-content-type" list="content-types" placeholder="Content-Type" value="${contentType}">
+      </div>
+      <label>Response Body (JSON string)</label>
+      <textarea class="cond-body" placeholder="Response Body">${body}</textarea>
+    </div>
+  `
+
+  row.querySelector('.cond-op').addEventListener('change', (e) => {
+    const valInput = row.querySelector('.cond-value')
+    if (e.target.value === 'exists' || e.target.value === 'notExists') {
+      valInput.style.display = 'none'
+    }
+    else {
+      valInput.style.display = 'inline-block'
+    }
+  })
+
+  row.querySelector('.remove-cond-btn').addEventListener('click', () => {
+    row.remove()
+  })
+
+  conditionsList.appendChild(row)
+}
+
+function readConditionsFromForm() {
+  const rows = conditionsList.querySelectorAll('.condition-row')
+  const conditions = []
+  rows.forEach((row) => {
+    const key = row.querySelector('.cond-key').value.trim()
+    if (!key) return
+
+    const op = row.querySelector('.cond-op').value
+    const condition = {
+      source: row.querySelector('.cond-source').value,
+      key: key,
+      op: op,
+      response: {
+        status: parseInt(row.querySelector('.cond-status').value) || 200,
+        contentType: row.querySelector('.cond-content-type').value || undefined,
+        body: row.querySelector('.cond-body').value || undefined,
+      },
+    }
+
+    if (op !== 'exists' && op !== 'notExists') {
+      condition.value = row.querySelector('.cond-value').value
+    }
+
+    conditions.push(condition)
+  })
+  return conditions
+}
 
 async function fetchMocks() {
   try {
@@ -51,7 +141,10 @@ window.editMock = function (id) {
     document.getElementById('static-body').value = m.response?.body || ''
   }
   else if (m.type === 'conditional') {
-    document.getElementById('conditional-config').value = JSON.stringify(m.conditions || [], null, 2)
+    conditionsList.innerHTML = ''
+    if (m.conditions && Array.isArray(m.conditions)) {
+      m.conditions.forEach((c) => addConditionRow(c))
+    }
     document.getElementById('else-status').value = m.elseResponse?.status || 404
     document.getElementById('else-content-type').value = m.elseResponse?.contentType || 'text/plain'
   }
@@ -93,6 +186,7 @@ function showEditor(show) {
   if (!show) {
     mockForm.reset()
     document.getElementById('mock-id').value = ''
+    conditionsList.innerHTML = ''
   }
 }
 
@@ -109,6 +203,7 @@ newMockBtn.addEventListener('click', () => {
   showEditor(true)
   document.getElementById('static-content-type').value = 'text/plain'
   document.getElementById('else-content-type').value = 'text/plain'
+  conditionsList.innerHTML = ''
   updateConfigFields()
 })
 
@@ -136,7 +231,7 @@ mockForm.addEventListener('submit', async (e) => {
       }
     }
     else if (type === 'conditional') {
-      mock.conditions = JSON.parse(document.getElementById('conditional-config').value || '[]')
+      mock.conditions = readConditionsFromForm()
       mock.elseResponse = {
         status: parseInt(document.getElementById('else-status').value),
         contentType: document.getElementById('else-content-type').value || 'text/plain',
@@ -175,4 +270,5 @@ mockForm.addEventListener('submit', async (e) => {
 })
 
 // Init
+addConditionBtn.addEventListener('click', () => addConditionRow())
 fetchMocks()

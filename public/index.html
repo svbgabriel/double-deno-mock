@@ -73,9 +73,10 @@
             </div>
 
             <div id="config-conditional" class="config-fields" style="display: none;">
-              <h3>Conditional Config (JSON)</h3>
-              <textarea id="conditional-config"
-                placeholder='[{"source":"header","key":"x-env","op":"equals","value":"prod","response":{"status":200,"body":"production"}}]'></textarea>
+              <h3>Conditions</h3>
+              <div id="conditions-list"></div>
+              <button type="button" id="add-condition-btn" style="margin-bottom: 1rem;">Add Condition</button>
+
               <div class="field">
                 <label>Else Status</label>
                 <input type="number" id="else-status" value="404">
