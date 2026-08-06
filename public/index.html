@@ -53,6 +53,7 @@
                 <option value="conditional">Conditional</option>
                 <option value="sequence">Sequence</option>
                 <option value="script">Script</option>
+                <option value="rest">REST API</option>
               </select>
             </div>
 
@@ -98,6 +99,18 @@
               <h3>Script (JS/TS)</h3>
               <textarea id="script-code" placeholder="// Available context: method, path, pathParams, query, headers, body
 return { status: 200, body: JSON.stringify({ id: context.pathParams.id }) };"></textarea>
+            </div>
+
+            <div id="config-rest" class="config-fields" style="display: none;">
+              <h3>REST API Config</h3>
+              <div class="field">
+                <label>ID Field Name</label>
+                <input type="text" id="rest-id-field" value="id" placeholder="id">
+              </div>
+              <div class="field">
+                <label>Initial State (JSON Array)</label>
+                <textarea id="rest-initial-state" placeholder='[{"id": 1, "name": "Item 1"}]'></textarea>
+              </div>
             </div>
 
             <div class="actions">

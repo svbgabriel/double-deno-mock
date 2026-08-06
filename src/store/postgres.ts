@@ -10,6 +10,7 @@ interface MockRow {
   type: MockType
   priority: number
   config: string | Record<string, unknown>
+  state?: unknown[] | string
   createdAt: string
   updatedAt: string
 }
@@ -29,9 +30,19 @@ export class PostgresMockStore implements MockStore {
         type TEXT NOT NULL,
         priority INTEGER NOT NULL,
         config JSONB NOT NULL,
+        state JSONB,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL
       )
+    `)
+    await this.client.queryArray(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='mocks' AND column_name='state') THEN
+          ALTER TABLE mocks ADD COLUMN state JSONB;
+        END IF;
+      END
+      $$;
     `)
   }
 
@@ -59,12 +70,26 @@ export class PostgresMockStore implements MockStore {
       sequence: mock.sequence,
       sequenceMode: mock.sequenceMode,
       script: mock.script,
+      restIdField: mock.restIdField,
+      restInitialState: mock.restInitialState,
     }
+    const state = mock.state || mock.restInitialState || null
 
     await this.client.queryArray(
-      `INSERT INTO mocks (id, name, method, path, type, priority, config, createdAt, updatedAt)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [mock.id, mock.name, mock.method, mock.path, mock.type, mock.priority, JSON.stringify(config), mock.createdAt, mock.updatedAt],
+      `INSERT INTO mocks (id, name, method, path, type, priority, config, state, createdAt, updatedAt)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+      [
+        mock.id,
+        mock.name,
+        mock.method,
+        mock.path,
+        mock.type,
+        mock.priority,
+        JSON.stringify(config),
+        state ? JSON.stringify(state) : null,
+        mock.createdAt,
+        mock.updatedAt,
+      ],
     )
     return mock
   }
@@ -81,11 +106,14 @@ export class PostgresMockStore implements MockStore {
       sequence: updated.sequence,
       sequenceMode: updated.sequenceMode,
       script: updated.script,
+      restIdField: updated.restIdField,
+      restInitialState: updated.restInitialState,
     }
+    const state = updated.state || null
 
     await this.client.queryArray(
-      `UPDATE mocks SET name = $1, method = $2, path = $3, type = $4, priority = $5, config = $6, updatedAt = $7
-       WHERE id = $8`,
+      `UPDATE mocks SET name = $1, method = $2, path = $3, type = $4, priority = $5, config = $6, state = $7, updatedAt = $8
+       WHERE id = $9`,
       [
         updated.name,
         updated.method,
@@ -93,6 +121,7 @@ export class PostgresMockStore implements MockStore {
         updated.type,
         updated.priority,
         JSON.stringify(config),
+        state ? JSON.stringify(state) : null,
         updated.updatedAt,
         id,
       ],
@@ -100,12 +129,19 @@ export class PostgresMockStore implements MockStore {
     return updated
   }
 
+  async updateState(id: string, state: unknown[]): Promise<void> {
+    await this.client.queryArray(
+      'UPDATE mocks SET state = $1, updatedAt = $2 WHERE id = $3',
+      [JSON.stringify(state), new Date().toISOString(), id],
+    )
+  }
+
   async delete(id: string): Promise<void> {
     await this.client.queryArray('DELETE FROM mocks WHERE id = $1', [id])
   }
 
   private rowToMock(row: MockRow): Mock {
-    const { id, name, method, path, type, priority, config, createdAt, updatedAt } = row
+    const { id, name, method, path, type, priority, config, state, createdAt, updatedAt } = row
     return {
       id,
       name,
@@ -114,6 +150,7 @@ export class PostgresMockStore implements MockStore {
       type,
       priority,
       ...(typeof config === 'string' ? JSON.parse(config) : config),
+      state: typeof state === 'string' ? JSON.parse(state) : state,
       createdAt,
       updatedAt,
     }

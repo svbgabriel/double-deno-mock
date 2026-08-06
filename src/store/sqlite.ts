@@ -10,6 +10,7 @@ type MockRow = [
   type: MockType,
   priority: number,
   config: string,
+  state: string | null,
   createdAt: string,
   updatedAt: string,
 ]
@@ -28,10 +29,16 @@ export class SqliteMockStore implements MockStore {
         type TEXT NOT NULL,
         priority INTEGER NOT NULL,
         config TEXT NOT NULL,
+        state TEXT,
         createdAt TEXT NOT NULL,
         updatedAt TEXT NOT NULL
       )
     `)
+    try {
+      this.db.exec('ALTER TABLE mocks ADD COLUMN state TEXT')
+    } catch (_) {
+      // ignore if column already exists
+    }
     return Promise.resolve()
   }
 
@@ -54,12 +61,15 @@ export class SqliteMockStore implements MockStore {
       sequence: m.sequence,
       sequenceMode: m.sequenceMode,
       script: m.script,
+      restIdField: m.restIdField,
+      restInitialState: m.restInitialState,
     })
+    const state = m.state ? JSON.stringify(m.state) : (m.restInitialState ? JSON.stringify(m.restInitialState) : null)
 
     this.db.prepare(
-      `INSERT INTO mocks (id, name, method, path, type, priority, config, createdAt, updatedAt)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    ).run(m.id, m.name, m.method, m.path, m.type, m.priority, config, m.createdAt, m.updatedAt)
+      `INSERT INTO mocks (id, name, method, path, type, priority, config, state, createdAt, updatedAt)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    ).run(m.id, m.name, m.method, m.path, m.type, m.priority, config, state, m.createdAt, m.updatedAt)
     return Promise.resolve(m)
   }
 
@@ -75,13 +85,25 @@ export class SqliteMockStore implements MockStore {
       sequence: updated.sequence,
       sequenceMode: updated.sequenceMode,
       script: updated.script,
+      restIdField: updated.restIdField,
+      restInitialState: updated.restInitialState,
     })
+    const state = updated.state ? JSON.stringify(updated.state) : null
 
     this.db.prepare(
-      `UPDATE mocks SET name = ?, method = ?, path = ?, type = ?, priority = ?, config = ?, updatedAt = ?
+      `UPDATE mocks SET name = ?, method = ?, path = ?, type = ?, priority = ?, config = ?, state = ?, updatedAt = ?
        WHERE id = ?`,
-    ).run(updated.name, updated.method, updated.path, updated.type, updated.priority, config, updated.updatedAt, id)
+    ).run(updated.name, updated.method, updated.path, updated.type, updated.priority, config, state, updated.updatedAt, id)
     return updated
+  }
+
+  updateState(id: string, state: unknown[]): Promise<void> {
+    this.db.prepare('UPDATE mocks SET state = ?, updatedAt = ? WHERE id = ?').run(
+      JSON.stringify(state),
+      new Date().toISOString(),
+      id,
+    )
+    return Promise.resolve()
   }
 
   delete(id: string): Promise<void> {
@@ -90,8 +112,9 @@ export class SqliteMockStore implements MockStore {
   }
 
   private rowToMock(row: MockRow): Mock {
-    const [id, name, method, path, type, priority, configStr, createdAt, updatedAt] = row
+    const [id, name, method, path, type, priority, configStr, stateStr, createdAt, updatedAt] = row
     const config = JSON.parse(configStr)
+    const state = stateStr ? JSON.parse(stateStr) : undefined
     return {
       id,
       name,
@@ -100,6 +123,7 @@ export class SqliteMockStore implements MockStore {
       type,
       priority,
       ...config,
+      state,
       createdAt,
       updatedAt,
     }

@@ -1,4 +1,4 @@
-export const mockTypeArray = ['static', 'conditional', 'sequence', 'script'] as const
+export const mockTypeArray = ['static', 'conditional', 'sequence', 'script', 'rest'] as const
 export type MockType = (typeof mockTypeArray)[number]
 
 export interface MockResponse {
@@ -31,6 +31,10 @@ export interface Mock {
   sequenceMode?: 'cycle' | 'stopAtEnd' // sequence
   script?: string // script (JS source)
   scriptTimeoutMs?: number // optional per-mock timeout override in ms
+  // rest
+  restIdField?: string
+  restInitialState?: unknown[]
+  state?: unknown[]
   createdAt: string
   updatedAt: string
 }
@@ -41,5 +45,6 @@ export interface MockStore {
   get(id: string): Promise<Mock | null>
   create(mock: Mock): Promise<Mock>
   update(id: string, mock: Partial<Mock>): Promise<Mock>
+  updateState(id: string, state: unknown[]): Promise<void>
   delete(id: string): Promise<void>
 }

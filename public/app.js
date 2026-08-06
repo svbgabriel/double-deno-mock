@@ -112,9 +112,9 @@ async function fetchMocks() {
   }
 }
 
-window.resetSeq = async function (id) {
+window.resetSeq = async function (id, type = 'sequence') {
   await fetch(`${API_URL}/${id}/reset`, { method: 'POST' })
-  alert('Sequence reset')
+  alert(`${type === 'rest' ? 'REST state' : 'Sequence'} reset`)
 }
 
 window.deleteMock = async function (id) {
@@ -155,6 +155,10 @@ window.editMock = function (id) {
   else if (m.type === 'script') {
     document.getElementById('script-code').value = m.script || ''
   }
+  else if (m.type === 'rest') {
+    document.getElementById('rest-id-field').value = m.restIdField || 'id'
+    document.getElementById('rest-initial-state').value = JSON.stringify(m.restInitialState || [], null, 2)
+  }
 
   showEditor(true)
   updateConfigFields()
@@ -172,7 +176,7 @@ function renderMocks() {
                 <p><strong>${m.method}</strong> ${m.path} (${m.type})</p>
             </div>
             <div class="actions">
-                ${m.type === 'sequence' ? `<button class="reset-btn" onclick="resetSeq('${m.id}')">Reset</button>` : ''}
+                ${(m.type === 'sequence' || m.type === 'rest') ? `<button class="reset-btn" onclick="resetSeq('${m.id}', '${m.type}')">Reset</button>` : ''}
                 <button onclick="editMock('${m.id}')">Edit</button>
                 <button class="delete-btn" onclick="deleteMock('${m.id}')">Delete</button>
             </div>
@@ -243,6 +247,10 @@ mockForm.addEventListener('submit', async (e) => {
     }
     else if (type === 'script') {
       mock.script = document.getElementById('script-code').value
+    }
+    else if (type === 'rest') {
+      mock.restIdField = document.getElementById('rest-id-field').value || 'id'
+      mock.restInitialState = JSON.parse(document.getElementById('rest-initial-state').value || '[]')
     }
   }
   catch (err) {

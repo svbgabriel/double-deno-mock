@@ -47,3 +47,52 @@ Deno.test('Admin API - CRUD lifecycle', async () => {
   const getRes = await app.request(`/__admin/mocks/${id}`)
   assertEquals(getRes.status, 404)
 })
+
+Deno.test('Admin API - REST mock reset', async () => {
+  await store.init()
+
+  // 1. Create REST mock
+  const createRes = await app.request('/__admin/mocks', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({
+      name: 'REST Reset Test',
+      method: '*',
+      path: '/api/reset-test',
+      type: 'rest',
+      restInitialState: [{ id: 1, name: 'Original' }],
+    }),
+  })
+  assertEquals(createRes.status, 201)
+  const created = await createRes.json()
+  const id = created.id
+
+  // 2. Mutate state via mock endpoint
+  const mutateRes = await app.request('/api/reset-test', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ name: 'Mutated' }),
+  })
+  assertEquals(mutateRes.status, 201)
+
+  // Verify mutated state
+  const getRes = await app.request('/api/reset-test')
+  const items = await getRes.json()
+  assertEquals(items.length, 2)
+  assertEquals(items[1].name, 'Mutated')
+
+  // 3. Reset mock
+  const resetRes = await app.request(`/__admin/mocks/${id}/reset`, {
+    method: 'POST',
+  })
+  assertEquals(resetRes.status, 200)
+
+  // Verify reset state
+  const getRes2 = await app.request('/api/reset-test')
+  const items2 = await getRes2.json()
+  assertEquals(items2.length, 1)
+  assertEquals(items2[0].name, 'Original')
+
+  // Cleanup
+  await app.request(`/__admin/mocks/${id}`, { method: 'DELETE' })
+})

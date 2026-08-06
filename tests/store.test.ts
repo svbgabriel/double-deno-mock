@@ -35,3 +35,33 @@ Deno.test('SqliteMockStore lifecycle', async () => {
   const deleted = await store.get('test-1')
   assertEquals(deleted, null)
 })
+
+Deno.test('SqliteMockStore REST state', async () => {
+  const store = new SqliteMockStore()
+  await store.init()
+
+  const restMock: Mock = {
+    id: 'rest-1',
+    name: 'REST Mock',
+    method: '*',
+    path: '/api/items',
+    type: 'rest',
+    priority: 0,
+    restIdField: 'id',
+    restInitialState: [{ id: 1, name: 'Item 1' }],
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+
+  await store.create(restMock)
+
+  const fetched = await store.get('rest-1')
+  assertEquals(fetched?.state, [{ id: 1, name: 'Item 1' }])
+  assertEquals(fetched?.restInitialState, [{ id: 1, name: 'Item 1' }])
+
+  await store.updateState('rest-1', [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }])
+  const updated = await store.get('rest-1')
+  assertEquals(updated?.state, [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }])
+
+  await store.delete('rest-1')
+})

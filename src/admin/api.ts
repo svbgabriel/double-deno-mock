@@ -26,6 +26,9 @@ function validateMock(mock: Partial<Mock>): string | null {
     return 'Sequence mock requires at least one response in the sequence'
   }
   if (mock.type === 'script' && !mock.script) return 'Script mock requires a script'
+  if (mock.type === 'rest' && mock.restInitialState && !Array.isArray(mock.restInitialState)) {
+    return 'REST mock initial state must be an array'
+  }
 
   return null
 }
@@ -110,6 +113,10 @@ api.post('/mocks/:id/reset', async (c) => {
   if (!existing) return c.json({ error: 'Not Found' }, 404)
 
   resetSequence(id)
+  if (existing.type === 'rest') {
+    await store.updateState(id, existing.restInitialState || [])
+    await engine.loadMocks()
+  }
   return c.json({ success: true })
 })
 

@@ -18,6 +18,9 @@ class MockStoreStub implements MockStore {
   update(_id: string, _m: Partial<Mock>): Promise<Mock> {
     return Promise.resolve({} as Mock)
   }
+  updateState(_id: string, _state: unknown[]): Promise<void> {
+    return Promise.resolve()
+  }
   delete(): Promise<void> {
     return Promise.resolve()
   }

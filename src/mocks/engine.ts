@@ -3,6 +3,7 @@ import { handleStatic } from './responders/static.ts'
 import { handleConditional } from './responders/conditional.ts'
 import { handleSequence } from './responders/sequence.ts'
 import { handleScript } from './responders/script.ts'
+import { handleRest } from './responders/rest.ts'
 
 export class MatchingEngine {
   private mocks: Mock[] = []
@@ -73,7 +74,7 @@ export class MatchingEngine {
     }
 
     let body: unknown = null
-    if (mock.type === 'conditional' || mock.type === 'script') {
+    if (mock.type === 'conditional' || mock.type === 'script' || mock.type === 'rest') {
       const contentType = headers.get('content-type')
       if (contentType?.includes('application/json')) {
         try {
@@ -94,6 +95,8 @@ export class MatchingEngine {
         return handleSequence(mock)
       case 'script':
         return await handleScript(mock, method, path, pathParams, headers, query, body)
+      case 'rest':
+        return await handleRest(mock, method, pathParams, body, this.store)
       default:
         return { status: 500, body: `Unknown mock type: ${mock.type}` }
     }
