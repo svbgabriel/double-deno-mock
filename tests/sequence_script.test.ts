@@ -3,20 +3,24 @@ import { MatchingEngine } from '../src/mocks/engine.ts'
 import { Mock, MockStore } from '../src/mocks/types.ts'
 
 class MockStoreStub implements MockStore {
-  async init() {}
-  async list(): Promise<Mock[]> {
-    return []
+  init(): Promise<void> {
+    return Promise.resolve()
   }
-  async get(): Promise<Mock | null> {
-    return null
+  list(): Promise<Mock[]> {
+    return Promise.resolve([])
   }
-  async create(m: Mock): Promise<Mock> {
-    return m
+  get(): Promise<Mock | null> {
+    return Promise.resolve(null)
   }
-  async update(_id: string, _m: Partial<Mock>): Promise<Mock> {
-    return {} as Mock
+  create(m: Mock): Promise<Mock> {
+    return Promise.resolve(m)
   }
-  async delete(): Promise<void> {}
+  update(_id: string, _m: Partial<Mock>): Promise<Mock> {
+    return Promise.resolve({} as Mock)
+  }
+  delete(): Promise<void> {
+    return Promise.resolve()
+  }
 }
 
 Deno.test('Sequence Responder - cycle mode', async () => {

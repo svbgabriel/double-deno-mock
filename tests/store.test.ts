@@ -34,10 +34,4 @@ Deno.test('SqliteMockStore lifecycle', async () => {
   await store.delete('test-1')
   const deleted = await store.get('test-1')
   assertEquals(deleted, null)
-
-  // Cleanup
-  try {
-    await Deno.remove('./mocks.db')
-  }
-  catch {}
 })
