@@ -1,8 +1,10 @@
 import { Hono } from '@hono'
+import { streamSSE } from '@hono/streaming'
 import { store } from '../store/index.ts'
 import { engine } from '../server.ts'
 import { Mock, mockTypeArray } from '../mocks/types.ts'
 import { resetSequence } from '../mocks/responders/sequence.ts'
+import { liveFeed } from '../livefeed/logBus.ts'
 
 const api = new Hono()
 
@@ -118,6 +120,37 @@ api.post('/mocks/:id/reset', async (c) => {
     await engine.loadMocks()
   }
   return c.json({ success: true })
+})
+
+api.get('/livefeed', (c) => {
+  return streamSSE(c, async (stream) => {
+    for (const entry of liveFeed.getHistory()) {
+      await stream.writeSSE({
+        data: JSON.stringify(entry),
+        event: 'message',
+        id: entry.id,
+      })
+    }
+
+    let closed = false
+    const unsubscribe = liveFeed.subscribe((entry) => {
+      if (closed) return
+      stream.writeSSE({
+        data: JSON.stringify(entry),
+        event: 'message',
+        id: entry.id,
+      }).catch(() => {})
+    })
+
+    stream.onAbort(() => {
+      closed = true
+      unsubscribe()
+    })
+
+    while (!closed) {
+      await stream.sleep(1000)
+    }
+  })
 })
 
 export default api

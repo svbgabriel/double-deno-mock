@@ -3,6 +3,7 @@ import { serveStatic } from '@hono/deno'
 import { MatchingEngine } from './mocks/engine.ts'
 import { store } from './store/index.ts'
 import adminApi from './admin/api.ts'
+import { liveFeed } from './livefeed/logBus.ts'
 
 export const engine = new MatchingEngine(store)
 
@@ -29,9 +30,20 @@ app.all('*', async (c) => {
     return c.notFound()
   }
 
+  const startTime = performance.now()
   const res = await engine.handleRequest(c.req.raw)
+  const durationMs = performance.now() - startTime
+  const matchedMock = engine.getLastMatchedMock()
 
   if (!res) {
+    liveFeed.record({
+      method: c.req.method,
+      path,
+      matchedMockId: null,
+      matchedMockName: null,
+      status: 404,
+      durationMs,
+    })
     return c.json({
       error: 'Not Found',
       message: `No mock matched for ${c.req.method} ${path}`,
@@ -42,6 +54,15 @@ app.all('*', async (c) => {
   if (!headers.has('Content-Type')) {
     headers.set('Content-Type', res.contentType || 'text/plain')
   }
+
+  liveFeed.record({
+    method: c.req.method,
+    path,
+    matchedMockId: matchedMock?.id ?? null,
+    matchedMockName: matchedMock?.name ?? null,
+    status: res.status,
+    durationMs,
+  })
 
   return new Response(res.body, {
     status: res.status,

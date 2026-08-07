@@ -1,9 +1,15 @@
 const API_URL = '/__admin/mocks'
+const LIVEFEED_URL = '/__admin/livefeed'
 
 const mockList = document.getElementById('mock-list')
 const mockForm = document.getElementById('mock-form')
 const editorSection = document.getElementById('editor-section')
 const mockListSection = document.getElementById('mock-list-section')
+const livefeedSection = document.getElementById('livefeed-section')
+const livefeedList = document.getElementById('livefeed-list')
+const mocksNavBtn = document.getElementById('mocks-nav-btn')
+const livefeedNavBtn = document.getElementById('livefeed-nav-btn')
+const clearLivefeedBtn = document.getElementById('clear-livefeed-btn')
 const newMockBtn = document.getElementById('new-mock-btn')
 const cancelBtn = document.getElementById('cancel-btn')
 const mockTypeSelect = document.getElementById('mock-type')
@@ -12,6 +18,7 @@ const addConditionBtn = document.getElementById('add-condition-btn')
 
 // State
 let mocks = []
+let livefeedSource = null
 
 function addConditionRow(condition = null) {
   const row = document.createElement('div')
@@ -275,6 +282,62 @@ mockForm.addEventListener('submit', async (e) => {
     const err = await res.json()
     alert(`Error: ${err.error}`)
   }
+})
+
+function statusClass(status) {
+  if (status >= 200 && status < 300) return 'status-2xx'
+  if (status >= 300 && status < 400) return 'status-3xx'
+  if (status >= 400 && status < 500) return 'status-4xx'
+  return 'status-5xx'
+}
+
+function renderLivefeedEntry(entry) {
+  const row = document.createElement('div')
+  row.className = 'livefeed-row'
+  const time = new Date(entry.timestamp).toLocaleTimeString()
+  row.innerHTML = `
+    <span class="lf-time">${time}</span>
+    <span class="lf-method">${entry.method}</span>
+    <span class="lf-path">${entry.path}</span>
+    <span class="lf-mock">${entry.matchedMockName || '-'}</span>
+    <span class="lf-status ${statusClass(entry.status)}">${entry.status}</span>
+    <span class="lf-duration">${entry.durationMs.toFixed(1)}ms</span>
+  `
+  livefeedList.insertBefore(row, livefeedList.firstChild)
+}
+
+function connectLivefeed() {
+  if (livefeedSource) return
+  livefeedSource = new EventSource(LIVEFEED_URL)
+  livefeedSource.addEventListener('message', (e) => {
+    const entry = JSON.parse(e.data)
+    renderLivefeedEntry(entry)
+  })
+}
+
+function showSection(section) {
+  mockListSection.style.display = section === 'mocks' ? 'block' : 'none'
+  livefeedSection.style.display = section === 'livefeed' ? 'block' : 'none'
+  mocksNavBtn.classList.toggle('active', section === 'mocks')
+  livefeedNavBtn.classList.toggle('active', section === 'livefeed')
+
+  if (section === 'livefeed') {
+    connectLivefeed()
+  }
+}
+
+mocksNavBtn.addEventListener('click', () => {
+  showEditor(false)
+  showSection('mocks')
+})
+
+livefeedNavBtn.addEventListener('click', () => {
+  showEditor(false)
+  showSection('livefeed')
+})
+
+clearLivefeedBtn.addEventListener('click', () => {
+  livefeedList.innerHTML = ''
 })
 
 // Init

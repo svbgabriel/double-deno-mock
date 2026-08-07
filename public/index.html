@@ -10,6 +10,10 @@
     <div id="app">
       <header>
         <h1>Deno Mock Server</h1>
+        <nav>
+          <button id="mocks-nav-btn" class="nav-btn active">Mocks</button>
+          <button id="livefeed-nav-btn" class="nav-btn">Live Feed</button>
+        </nav>
         <button id="new-mock-btn">New Mock</button>
       </header>
 
@@ -17,6 +21,12 @@
         <section id="mock-list-section">
           <h2>Mocks</h2>
           <div id="mock-list">Loading...</div>
+        </section>
+
+        <section id="livefeed-section" style="display: none;">
+          <h2>Live Feed</h2>
+          <button id="clear-livefeed-btn">Clear</button>
+          <div id="livefeed-list"></div>
         </section>
 
         <section id="editor-section" style="display: none;">

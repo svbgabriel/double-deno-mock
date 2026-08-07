@@ -8,8 +8,13 @@ import { handleRest } from './responders/rest.ts'
 export class MatchingEngine {
   private mocks: Mock[] = []
   private compiledPatterns: Map<string, URLPattern | null> = new Map()
+  private lastMatchedMock: { id: string; name: string } | null = null
 
   constructor(private store: MockStore) {}
+
+  getLastMatchedMock(): { id: string; name: string } | null {
+    return this.lastMatchedMock
+  }
 
   async loadMocks() {
     this.mocks = await this.store.list()
@@ -58,7 +63,11 @@ export class MatchingEngine {
     })
 
     const mock = sorted[0]
-    if (!mock) return null
+    if (!mock) {
+      this.lastMatchedMock = null
+      return null
+    }
+    this.lastMatchedMock = { id: mock.id, name: mock.name }
 
     const pathParams: Record<string, string> = {}
     const pattern = this.compiledPatterns.get(mock.id)
