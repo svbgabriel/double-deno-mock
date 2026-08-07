@@ -4,7 +4,7 @@
     "jsr:@db/postgres@~0.19.5": "0.19.5",
     "jsr:@db/sqlite@0.13": "0.13.0",
     "jsr:@denosaurs/plug@1": "1.1.0",
-    "jsr:@hono/hono@^4.5.4": "4.12.32",
+    "jsr:@hono/hono@^4.13.0": "4.13.0",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/bytes@^1.0.5": "1.0.6",
     "jsr:@std/crypto@^1.0.4": "1.1.0",
@@ -47,8 +47,8 @@
         "jsr:@std/path@1"
       ]
     },
-    "@hono/hono@4.12.32": {
-      "integrity": "e1274e968ee724176d7e35946c184d3cb8508f05e3f8ae6cee157c4f29ef148d"
+    "@hono/hono@4.13.0": {
+      "integrity": "01944c68d43ec22e31b236923335ff8415bae8f32f76290d3a8387b9640c96af"
     },
     "@std/assert@1.0.19": {
       "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
@@ -92,7 +92,7 @@
     "dependencies": [
       "jsr:@db/postgres@~0.19.5",
       "jsr:@db/sqlite@0.13",
-      "jsr:@hono/hono@^4.5.4",
+      "jsr:@hono/hono@^4.13.0",
       "jsr:@std/assert@^1.0.19"
     ]
   }
