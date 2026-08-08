@@ -3,7 +3,7 @@ import { serveStatic } from '@hono/deno'
 import { MatchingEngine } from './mocks/engine.ts'
 import { store } from './store/index.ts'
 import adminApi from './admin/api.ts'
-import { liveFeed } from './livefeed/logBus.ts'
+import { liveFeed } from './livefeed/log_bus.ts'
 
 export const engine = new MatchingEngine(store)
 

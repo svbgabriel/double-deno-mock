@@ -4,7 +4,7 @@ import { store } from '../store/index.ts'
 import { engine } from '../server.ts'
 import { Mock, mockTypeArray } from '../mocks/types.ts'
 import { resetSequence } from '../mocks/responders/sequence.ts'
-import { liveFeed } from '../livefeed/logBus.ts'
+import { liveFeed } from '../livefeed/log_bus.ts'
 
 const api = new Hono()
 

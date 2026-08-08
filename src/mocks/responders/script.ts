@@ -1,5 +1,5 @@
 import { Mock, MockResponse } from '../types.ts'
-import { runScript, ScriptContext } from '../scriptRunner.ts'
+import { runScript, ScriptContext } from '../script_runner.ts'
 import { scriptTimeoutMs } from '../../config.ts'
 
 export async function handleScript(
