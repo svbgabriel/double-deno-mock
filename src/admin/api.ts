@@ -63,8 +63,7 @@ api.post('/mocks', async (c) => {
     const created = await store.create(mock)
     await engine.loadMocks()
     return c.json(created, 201)
-  }
-  catch (err) {
+  } catch (err) {
     console.error('[Admin API] Error creating mock:', err)
     return c.json({ error: 'Internal Server Error' }, 500)
   }
@@ -85,8 +84,7 @@ api.put('/mocks/:id', async (c) => {
     resetSequence(id)
     await engine.loadMocks()
     return c.json(updated)
-  }
-  catch (err) {
+  } catch (err) {
     console.error('[Admin API] Error updating mock:', err)
     return c.json({ error: 'Internal Server Error' }, 500)
   }
@@ -102,8 +100,7 @@ api.delete('/mocks/:id', async (c) => {
     resetSequence(id)
     await engine.loadMocks()
     return c.json({ success: true })
-  }
-  catch (err) {
+  } catch (err) {
     console.error('[Admin API] Error deleting mock:', err)
     return c.json({ error: 'Internal Server Error' }, 500)
   }

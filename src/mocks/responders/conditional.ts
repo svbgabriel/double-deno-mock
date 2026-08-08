@@ -13,11 +13,9 @@ export function handleConditional(
 
     if (condition.source === 'header') {
       valueToCompare = headers.get(condition.key) || undefined
-    }
-    else if (condition.source === 'query') {
+    } else if (condition.source === 'query') {
       valueToCompare = query[condition.key]
-    }
-    else if (condition.source === 'body') {
+    } else if (condition.source === 'body') {
       // Basic JSON body field access. For deeper fields, a more complex logic would be needed.
       if (typeof body === 'object' && body !== null) {
         const val = (body as Record<string, unknown>)[condition.key]

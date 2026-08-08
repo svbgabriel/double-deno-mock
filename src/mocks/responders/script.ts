@@ -28,8 +28,7 @@ export async function handleScript(
 
   try {
     return await runScript(mock.script, context, timeout)
-  }
-  catch (err) {
+  } catch (err) {
     return {
       status: 500,
       body: `Script error: ${err instanceof Error ? err.message : String(err)}`,

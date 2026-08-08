@@ -37,14 +37,12 @@ export function validateAndNormalizeResponse(raw: unknown): MockResponse {
   if (r.body !== undefined && r.body !== null) {
     if (typeof r.body === 'string') {
       body = r.body
-    }
-    else if (typeof r.body === 'object') {
+    } else if (typeof r.body === 'object') {
       body = JSON.stringify(r.body)
       if (!contentType) {
         contentType = 'application/json'
       }
-    }
-    else {
+    } else {
       body = String(r.body)
     }
   }
@@ -85,14 +83,12 @@ self.onmessage = async (e) => {
     const response = validateAndNormalizeResponse(rawResponse)
 
     self.postMessage({ id, type: 'success', response })
-  }
-  catch (err) {
+  } catch (err) {
     let errorMsg: string
     if (err instanceof Error) {
       const prefix = err.name && err.name !== 'Error' ? `${err.name}: ` : ''
       errorMsg = `${prefix}${err.message}`
-    }
-    else {
+    } else {
       errorMsg = String(err)
     }
     self.postMessage({ id, type: 'error', error: errorMsg })

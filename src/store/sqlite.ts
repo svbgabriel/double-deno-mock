@@ -93,7 +93,17 @@ export class SqliteMockStore implements MockStore {
     this.db.prepare(
       `UPDATE mocks SET name = ?, method = ?, path = ?, type = ?, priority = ?, config = ?, state = ?, updatedAt = ?
        WHERE id = ?`,
-    ).run(updated.name, updated.method, updated.path, updated.type, updated.priority, config, state, updated.updatedAt, id)
+    ).run(
+      updated.name,
+      updated.method,
+      updated.path,
+      updated.type,
+      updated.priority,
+      config,
+      state,
+      updated.updatedAt,
+      id,
+    )
     return updated
   }
 

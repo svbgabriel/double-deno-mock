@@ -21,8 +21,7 @@ export function runScript(script: string, context: ScriptContext, timeoutMs = 20
         permissions: 'none',
       },
     })
-  }
-  catch (err) {
+  } catch (err) {
     throw new Error(
       `Failed to create sandboxed worker: ${
         err instanceof Error ? err.message : String(err)
@@ -46,8 +45,7 @@ export function runScript(script: string, context: ScriptContext, timeoutMs = 20
 
       if (type === 'success') {
         resolve(response)
-      }
-      else {
+      } else {
         reject(new Error(error || 'Script execution failed'))
       }
     }
@@ -60,8 +58,7 @@ export function runScript(script: string, context: ScriptContext, timeoutMs = 20
 
     try {
       w.postMessage({ id, script, context })
-    }
-    catch (err) {
+    } catch (err) {
       clearTimeout(timer)
       w.terminate()
       reject(err instanceof Error ? err : new Error(String(err)))

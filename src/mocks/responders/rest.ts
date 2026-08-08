@@ -68,7 +68,7 @@ export async function handleRest(
   } else {
     // Item operations
     const index = state.findIndex((item) => String((item as Record<string, unknown>)[idField]) === String(itemId))
-    
+
     if (index === -1 && upperMethod !== 'POST') {
       return { status: 404, body: `Item with ${idField} ${itemId} not found` }
     }

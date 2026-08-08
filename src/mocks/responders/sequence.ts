@@ -15,8 +15,7 @@ export function handleSequence(mock: Mock): MockResponse {
   if (nextIndex >= sequence.length) {
     if (mock.sequenceMode === 'stopAtEnd') {
       nextIndex = sequence.length - 1
-    }
-    else {
+    } else {
       nextIndex = 0 // cycle by default
     }
   }

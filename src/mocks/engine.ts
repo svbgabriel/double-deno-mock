@@ -31,8 +31,7 @@ export class MatchingEngine {
     for (const mock of this.mocks) {
       try {
         this.compiledPatterns.set(mock.id, new URLPattern({ pathname: mock.path }))
-      }
-      catch {
+      } catch {
         this.compiledPatterns.set(mock.id, null)
       }
     }
@@ -88,8 +87,7 @@ export class MatchingEngine {
       if (contentType?.includes('application/json')) {
         try {
           body = await req.json()
-        }
-        catch {
+        } catch {
           // Ignore body parsing errors
         }
       }
