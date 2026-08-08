@@ -206,6 +206,10 @@ function updateConfigFields() {
   document.querySelectorAll('.config-fields').forEach((el) => el.style.display = 'none')
   const target = document.getElementById(`config-${type}`)
   if (target) target.style.display = 'block'
+
+  if (type === 'rest') {
+    document.getElementById('mock-method').value = '*'
+  }
 }
 
 mockTypeSelect.addEventListener('change', updateConfigFields)
