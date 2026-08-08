@@ -1,6 +1,5 @@
 {
   "tasks": {
-    "build": "deno compile --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-worker-options --output=build/mock-server src/main.ts",
     "start": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-worker-options src/main.ts",
     "dev": "deno run --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-worker-options --watch src/main.ts",
     "test": "deno test --allow-net --allow-read --allow-write --allow-env --allow-ffi --unstable-worker-options"
