@@ -19,8 +19,12 @@ ENV DENO_DIR=/deno-dir
 WORKDIR /app
 
 # Copy the populated Deno cache so the runtime stage has the dependencies
-COPY --from=builder /deno-dir /deno-dir
+COPY --chown=nonroot:nonroot --from=builder /deno-dir /deno-dir
 
-COPY --from=builder /app .
+# Copy application
+COPY --chown=nonroot:nonroot --from=builder /app .
+
+# Change to nonroot user
+USER nonroot
 
 CMD ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-env", "--allow-ffi", "--unstable-worker-options", "src/main.ts"]
