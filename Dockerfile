@@ -27,4 +27,4 @@ COPY --chown=nonroot:nonroot --from=builder /app .
 # Change to nonroot user
 USER nonroot
 
-CMD ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-env", "--allow-ffi", "--unstable-worker-options", "src/main.ts"]
+CMD ["run", "--allow-net", "--allow-read", "--allow-write", "--allow-env", "--unstable-worker-options", "src/main.ts"]

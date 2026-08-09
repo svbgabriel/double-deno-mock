@@ -1,9 +1,9 @@
 import { assertEquals } from '@std/assert'
-import { SqliteMockStore } from '../src/store/sqlite.ts'
+import { InMemoryMockStore } from '../src/store/memory.ts'
 import { Mock } from '../src/mocks/types.ts'
 
-Deno.test('SqliteMockStore lifecycle', async () => {
-  const store = new SqliteMockStore()
+Deno.test('InMemoryMockStore lifecycle', async () => {
+  const store = new InMemoryMockStore()
   await store.init()
 
   const mock: Mock = {
@@ -36,8 +36,8 @@ Deno.test('SqliteMockStore lifecycle', async () => {
   assertEquals(deleted, null)
 })
 
-Deno.test('SqliteMockStore REST state', async () => {
-  const store = new SqliteMockStore()
+Deno.test('InMemoryMockStore REST state', async () => {
+  const store = new InMemoryMockStore()
   await store.init()
 
   const restMock: Mock = {
@@ -64,4 +64,54 @@ Deno.test('SqliteMockStore REST state', async () => {
   assertEquals(updated?.state, [{ id: 1, name: 'Item 1' }, { id: 2, name: 'Item 2' }])
 
   await store.delete('rest-1')
+})
+
+Deno.test('InMemoryMockStore ordering', async () => {
+  const store = new InMemoryMockStore()
+  await store.init()
+
+  const m1: Mock = {
+    id: 'm1',
+    name: 'M1',
+    method: 'GET',
+    path: '/1',
+    type: 'static',
+    priority: 10,
+    createdAt: '2024-01-01T00:00:00.000Z',
+    updatedAt: '2024-01-01T00:00:00.000Z',
+  }
+
+  const m2: Mock = {
+    id: 'm2',
+    name: 'M2',
+    method: 'GET',
+    path: '/2',
+    type: 'static',
+    priority: 5,
+    createdAt: '2024-01-02T00:00:00.000Z',
+    updatedAt: '2024-01-02T00:00:00.000Z',
+  }
+
+  const m3: Mock = {
+    id: 'm3',
+    name: 'M3',
+    method: 'GET',
+    path: '/3',
+    type: 'static',
+    priority: 10,
+    createdAt: '2024-01-02T00:00:00.000Z',
+    updatedAt: '2024-01-02T00:00:00.000Z',
+  }
+
+  // Add in random order
+  await store.create(m2)
+  await store.create(m1)
+  await store.create(m3)
+
+  const list = await store.list()
+  // Should be ordered by priority DESC, then createdAt DESC
+  // Expected order: m3 (p10, newer), m1 (p10, older), m2 (p5)
+  assertEquals(list[0].id, 'm3')
+  assertEquals(list[1].id, 'm1')
+  assertEquals(list[2].id, 'm2')
 })
