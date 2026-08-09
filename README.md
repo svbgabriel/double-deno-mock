@@ -1,6 +1,6 @@
 # Deno Mock Server
 
-A customizable mock HTTP server built with Deno and Hono.
+A customizable mock HTTP server built with Deno and Hono. Inspired by [sMockin](https://github.com/matthewgallina/smockin).
 
 ## Features
 
