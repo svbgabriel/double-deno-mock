@@ -29,9 +29,8 @@ The server will start on port 8000 by default. Access the UI at `http://localhos
 ### Environment Variables
 
 - `PORT`: Server port (default: 8000).
-- `DB_DRIVER`: `sqlite` (default) or `postgres`.
-- `SQLITE_PATH`: Path to SQLite database file (default: `:memory:`).
-- `POSTGRES_URL`: PostgreSQL connection URL.
+- `DB_DRIVER`: `postgres` or `memory` (default).
+- `POSTGRES_URL`: PostgreSQL connection URL. Used only if `DB_DRIVER=postgres`.
 - `SCRIPT_TIMEOUT_MS`: Script execution timeout in milliseconds (default: 2000).
 
 > **Note**: Sandboxed script worker execution requires Deno's `--unstable-worker-options` flag, which is enabled in `deno.jsonc` tasks.
@@ -57,7 +56,7 @@ multiple mocks match, the one with the highest **Priority** is chosen.
 
 ### Static Mock Example
 
-Retorna sempre a mesma resposta (status, headers e body fixos):
+Always returns the same response (fixed status, headers, and body):
 
 ```json
 {
@@ -74,7 +73,7 @@ Retorna sempre a mesma resposta (status, headers e body fixos):
 
 ### Conditional Mock Example
 
-Avalia uma lista de `conditions` em ordem e retorna a resposta da primeira que casar. Se nenhuma casar, retorna `elseResponse`:
+Evaluates a list of conditions in order and returns the response of the first match. If none match, returns `elseResponse`:
 
 ```json
 {
@@ -102,7 +101,7 @@ Avalia uma lista de `conditions` em ordem e retorna a resposta da primeira que c
 
 ### Sequence Mock Example
 
-Retorna respostas em sequência a cada chamada. Com `sequenceMode: "cycle"` a sequência reinicia ao chegar ao fim; com `"stopAtEnd"` permanece na última resposta:
+Returns responses in sequence on each call. With `sequenceMode: "cycle"`, the sequence restarts when it reaches the end; with `"stopAtEnd"`, it remains on the last response:
 
 ```json
 {
@@ -158,16 +157,16 @@ To use it effectively, define a path pattern that includes an optional `:id` par
 
 #### Supported Operations
 
-| Path | Method | Action |
-| :--- | :--- | :--- |
-| Collection | `GET` | Returns the full array of resources. |
-| Collection | `POST` | Appends a new item. Generates a UUID if the ID field is missing. |
-| Collection | `PUT` | Replaces the entire collection with the provided array. |
-| Collection | `DELETE` | Clears the collection. |
-| Item (`/:id`) | `GET` | Returns the resource with the matching ID. |
-| Item (`/:id`) | `PUT` | Replaces the matching resource. |
-| Item (`/:id`) | `PATCH` | Performs a shallow merge on the matching resource. |
-| Item (`/:id`) | `DELETE` | Removes the resource from the collection. |
+| Path          | Method   | Action                                                           |
+|:--------------|:---------|:-----------------------------------------------------------------|
+| Collection    | `GET`    | Returns the full array of resources.                             |
+| Collection    | `POST`   | Appends a new item. Generates a UUID if the ID field is missing. |
+| Collection    | `PUT`    | Replaces the entire collection with the provided array.          |
+| Collection    | `DELETE` | Clears the collection.                                           |
+| Item (`/:id`) | `GET`    | Returns the resource with the matching ID.                       |
+| Item (`/:id`) | `PUT`    | Replaces the matching resource.                                  |
+| Item (`/:id`) | `PATCH`  | Performs a shallow merge on the matching resource.               |
+| Item (`/:id`) | `DELETE` | Removes the resource from the collection.                        |
 
 #### Configuration
 
