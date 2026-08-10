@@ -1,8 +1,8 @@
 {
   "tasks": {
-    "start": "deno run --allow-net --allow-read --allow-write --allow-env --unstable-worker-options src/main.ts",
-    "dev": "deno run --allow-net --allow-read --allow-write --allow-env --unstable-worker-options --watch src/main.ts",
-    "test": "deno test --allow-net --allow-read --allow-write --allow-env --unstable-worker-options"
+    "start": "deno run --allow-net --allow-read --allow-env --unstable-worker-options src/main.ts",
+    "dev": "deno run --allow-net --allow-read --allow-env --unstable-worker-options --watch src/main.ts",
+    "test": "deno test --allow-net --allow-read --allow-env --unstable-worker-options"
   },
   "compilerOptions": {
     "strict": true,
