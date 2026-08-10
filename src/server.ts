@@ -17,6 +17,20 @@ app.use(
   }),
 )
 
+app.use(
+  '/favicon.ico',
+  serveStatic({
+    root: './public',
+  }),
+)
+
+app.use(
+  '/favicon.svg',
+  serveStatic({
+    root: './public',
+  }),
+)
+
 app.get('/', (c) => c.redirect('/ui/index.html'))
 
 app.route('/__admin', adminApi)
@@ -25,8 +39,14 @@ app.route('/__admin', adminApi)
 app.all('*', async (c) => {
   const path = c.req.path
 
-  // Skip admin and UI paths if they reach here
-  if (path.startsWith('/__admin') || path === '/ui' || path.startsWith('/ui/')) {
+  // Skip admin, UI, and favicon paths if they reach here
+  if (
+    path.startsWith('/__admin') ||
+    path === '/ui' ||
+    path.startsWith('/ui/') ||
+    path === '/favicon.ico' ||
+    path === '/favicon.svg'
+  ) {
     return c.notFound()
   }
 
