@@ -1,0 +1,33 @@
+services:
+  app:
+    build: .
+    container_name: mock-app
+    ports:
+      - "8000:8000"
+    environment:
+      PORT: "8000"
+      DB_DRIVER: "postgres"
+      POSTGRES_URL: "postgres://mock:mock@postgres:5432/mocks"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: mock-db
+    environment:
+      POSTGRES_DB: mocks
+      POSTGRES_USER: mock
+      POSTGRES_PASSWORD: mock
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mock -d mocks"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/18/docker
+
+volumes:
+  postgres_data:
