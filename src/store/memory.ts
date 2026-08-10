@@ -8,7 +8,7 @@ export class InMemoryMockStore implements MockStore {
   }
 
   list(): Promise<Mock[]> {
-    const list = Array.from(this.mocks.values()).map(m => this.clone(m))
+    const list = Array.from(this.mocks.values()).map((m) => this.clone(m))
     list.sort((a, b) => {
       if (b.priority !== a.priority) {
         return b.priority - a.priority
