@@ -4,6 +4,7 @@
   "tasks": {
     "start": "deno run --allow-net --allow-read --allow-env --unstable-worker-options src/main.ts",
     "dev": "deno run --allow-net --allow-read --allow-env --unstable-worker-options --watch src/main.ts",
+    "prepare": "git config --local core.hooksPath .git-hooks",
     "test": "deno test --allow-net --allow-read --allow-env --unstable-worker-options"
   },
   "compilerOptions": {

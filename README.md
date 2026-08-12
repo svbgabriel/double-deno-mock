@@ -41,6 +41,7 @@ The server will start on port 8000 by default. Access the UI at `http://localhos
 
 - `deno task start`: Start the server.
 - `deno task dev`: Start the server with watch mode.
+- `deno task prepare`: Should run once to install the git hooks.
 - `deno task test`: Run all tests.
 
 ### Test
