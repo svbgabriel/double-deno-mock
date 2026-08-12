@@ -10,7 +10,7 @@ A customizable mock HTTP server built with Deno and Hono. Inspired by [sMockin](
 - **Script Mocks**: Write custom logic in JS to compute the response, executed in a sandboxed Worker.
 - **REST Mocks**: Stateful REST API simulation with persistent resource collections and CRUD support.
 - **Management UI**: Simple web interface at `/ui` to manage mocks.
-- **Persistence**: Mocks are stored in SQLite (default) or PostgreSQL.
+- **Persistence**: Mocks are stored in-memory (default) or PostgreSQL.
 
 ## Getting Started
 
