@@ -1,4 +1,6 @@
 {
+  "name": "double-deno-mock",
+  "exports": "./src/main.ts",
   "tasks": {
     "start": "deno run --allow-net --allow-read --allow-env --unstable-worker-options src/main.ts",
     "dev": "deno run --allow-net --allow-read --allow-env --unstable-worker-options --watch src/main.ts",

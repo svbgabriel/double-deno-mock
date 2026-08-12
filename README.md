@@ -1,4 +1,4 @@
-# Deno Mock Server
+# double-deno-mock
 
 A customizable mock HTTP server built with Deno and Hono. Inspired by [sMockin](https://github.com/matthewgallina/smockin).
 
