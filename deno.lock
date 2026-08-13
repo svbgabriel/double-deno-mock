@@ -3,6 +3,8 @@
   "specifiers": {
     "jsr:@db/postgres@~0.19.5": "0.19.5",
     "jsr:@hono/hono@^4.13.1": "4.13.1",
+    "jsr:@miscellaneous/commitlint@*": "0.3.2",
+    "jsr:@miscellaneous/commitlint@~0.3.2": "0.3.2",
     "jsr:@std/assert@^1.0.19": "1.0.19",
     "jsr:@std/bytes@^1.0.5": "1.0.6",
     "jsr:@std/crypto@^1.0.4": "1.1.0",
@@ -25,6 +27,9 @@
     },
     "@hono/hono@4.13.1": {
       "integrity": "36e130f7c3a07d2938d0960c3c726e71ff15becdf999512949bc69884b6afb65"
+    },
+    "@miscellaneous/commitlint@0.3.2": {
+      "integrity": "f12be7602512b934cb501ed7a91130920b06a34a77ca9ca975148870f2d256e3"
     },
     "@std/assert@1.0.19": {
       "integrity": "eaada96ee120cb980bc47e040f82814d786fe8162ecc53c91d8df60b8755991e",
@@ -58,6 +63,7 @@
     "dependencies": [
       "jsr:@db/postgres@~0.19.5",
       "jsr:@hono/hono@^4.13.1",
+      "jsr:@miscellaneous/commitlint@~0.3.2",
       "jsr:@std/assert@^1.0.19"
     ]
   }
